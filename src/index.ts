@@ -53,9 +53,9 @@ function normalizePath(path: string): string {
 
 class FileSystem {
 	constructor(private env: Env) {}
-	createFile(path: string, content: string, headers: Record<string, string> = {}): void {
+	async createFile(path: string, content: string, headers: Record<string, string> = {}): void {
 		path = normalizePath(path);
-		this.env.files.put(path, JSON.stringify({ content, headers }), {
+		await this.env.files.put(path, JSON.stringify({ content, headers }), {
 			expirationTtl: this.env.FILE_RETENTION_SECONDS,
 		});
 	}
@@ -166,7 +166,7 @@ export default {
 					return new Response('Bad Request', { status: 400 });
 				}
 				const vf: VirtualFile = await request.json();
-				fs.createFile(filepath, vf.content, vf.headers);
+				await fs.createFile(filepath, vf.content, vf.headers);
 				return new Response('OK');
 			} else if (method === 'DELETE') {
 				if (filepath) {
@@ -179,7 +179,6 @@ export default {
 		}
 		if (pathname.startsWith(env.LOGS_PREFIX)) {
 			const auth = doAuth(env, request);
-			console.log('auth', auth);
 			if (auth) {
 				return auth;
 			}
