@@ -8,6 +8,33 @@ export interface Env {
 	LOGS_PREFIX: string;
 	REQUEST_LOG_RETENTION_SECONDS: number;
 	REQUEST_LOG_MAX_BODY: number;
+
+	ADMIN_USERNAME: string;
+	ADMIN_PASSWORD: string;
+}
+
+function doAuth(env: Env, request: Request) {
+	const { headers } = request;
+	const auth = headers.get('authorization');
+	if (!auth) {
+		return new Response('Unauthorized', {
+			status: 401,
+			headers: {
+				'WWW-Authenticate': 'Basic realm="Admin Access"',
+			},
+		});
+	}
+	const [username, password] = atob(auth.slice('Basic '.length)).split(':');
+	const good = username === env.ADMIN_USERNAME && password === env.ADMIN_PASSWORD;
+	if (good) {
+		return;
+	}
+	return new Response('Unauthorized', {
+		status: 401,
+		headers: {
+			'WWW-Authenticate': 'Basic realm="Admin Access"',
+		},
+	});
 }
 
 interface VirtualFile {
@@ -101,6 +128,10 @@ export default {
 		const accept = headers.get('accept') || '';
 		const { pathname } = new URL(request.url);
 		if (pathname.startsWith(env.EDIT_PREFIX)) {
+			const auth = doAuth(env, request);
+			if (auth) {
+				return auth;
+			}
 			const filepath = pathname.slice(env.EDIT_PREFIX.length) || '/';
 			if (method === 'GET') {
 				if (accept === 'application/json') {
@@ -128,6 +159,11 @@ export default {
 			}
 		}
 		if (pathname.startsWith(env.LOGS_PREFIX)) {
+			const auth = doAuth(env, request);
+			console.log('auth', auth);
+			if (auth) {
+				return auth;
+			}
 			const id = pathname.slice(env.LOGS_PREFIX.length).slice(1);
 			if (pathname === env.LOGS_PREFIX && method === 'GET') {
 				const logs = await logger.getLogs();
