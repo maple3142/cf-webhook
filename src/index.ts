@@ -1,5 +1,4 @@
 import EDIT_HTML from './edit.html';
-import { Router, Context } from 'cloudworker-router';
 
 export interface Env {
 	files: KVNamespace;
@@ -43,16 +42,6 @@ class FileSystem {
 		return (await this.env.files.get(path)) !== null;
 	}
 }
-
-// const adminRouter = new Router<Env>();
-
-// adminRouter.get('/', async (ctx: Context<Env>) => {
-// 	return new Response(ADMIN_HTML, {
-// 		headers: {
-// 			'content-type': 'text/html',
-// 		},
-// 	});
-// });
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
