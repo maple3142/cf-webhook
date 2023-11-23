@@ -1,11 +1,13 @@
 import EDIT_HTML from './edit.html';
 import LOGS_HTML from './logs.html';
+import FILES_HTML from './files.html';
 
 export interface Env {
 	files: KVNamespace;
 	requests: KVNamespace;
 	EDIT_PREFIX: string;
 	LOGS_PREFIX: string;
+	FILE_RETENTION_SECONDS: number;
 	REQUEST_LOG_RETENTION_SECONDS: number;
 	REQUEST_LOG_MAX_BODY: number;
 
@@ -53,7 +55,9 @@ class FileSystem {
 	constructor(private env: Env) {}
 	createFile(path: string, content: string, headers: Record<string, string> = {}): void {
 		path = normalizePath(path);
-		this.env.files.put(path, JSON.stringify({ content, headers }));
+		this.env.files.put(path, JSON.stringify({ content, headers }), {
+			expirationTtl: this.env.FILE_RETENTION_SECONDS,
+		});
 	}
 	async getFile(path: string): Promise<VirtualFile | null> {
 		path = normalizePath(path);
@@ -70,6 +74,14 @@ class FileSystem {
 	async fileExists(path: string): Promise<boolean> {
 		path = normalizePath(path);
 		return (await this.env.files.get(path)) !== null;
+	}
+	async getFilePaths(): Promise<string[]> {
+		const fileKeys = (await this.env.files.list()).keys;
+		return fileKeys.map((k) => k.name);
+	}
+	async deleteFiles(): Promise<void> {
+		const fileKeys = (await this.env.files.list()).keys;
+		await Promise.all(fileKeys.map((k) => this.env.files.delete(k.name)));
 	}
 }
 
@@ -132,10 +144,10 @@ export default {
 			if (auth) {
 				return auth;
 			}
-			const filepath = pathname.slice(env.EDIT_PREFIX.length) || '/';
+			const filepath = pathname.slice(env.EDIT_PREFIX.length);
 			if (method === 'GET') {
 				if (accept === 'application/json') {
-					const ct = await fs.getFile(filepath);
+					const ct = filepath ? await fs.getFile(filepath) : await fs.getFilePaths();
 					return new Response(JSON.stringify(ct), {
 						headers: {
 							'content-type': 'application/json',
@@ -143,18 +155,25 @@ export default {
 						},
 					});
 				}
-				return new Response(EDIT_HTML, {
+				return new Response(filepath ? EDIT_HTML : FILES_HTML, {
 					headers: {
 						'content-type': 'text/html',
 						'cache-control': 'no-store',
 					},
 				});
 			} else if (method === 'PUT') {
+				if (!filepath) {
+					return new Response('Bad Request', { status: 400 });
+				}
 				const vf: VirtualFile = await request.json();
 				fs.createFile(filepath, vf.content, vf.headers);
 				return new Response('OK');
 			} else if (method === 'DELETE') {
-				await fs.deleteFile(filepath);
+				if (filepath) {
+					await fs.deleteFile(filepath);
+				} else {
+					await fs.deleteFiles();
+				}
 				return new Response('OK');
 			}
 		}
