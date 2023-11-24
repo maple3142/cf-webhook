@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Edit</title>
+		<title>Logs</title>
 		<script
 			src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"
 			integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g=="
@@ -105,8 +105,11 @@
 			<div class="request"></div>
 		</main>
 		<script>
+			const segments = new URL(location.href).pathname.split('/');
+			const basepath = segments.length > 2 ? segments.slice(0, -1).join('/') : segments.join('/');
+			const targetId = segments.length > 2 ? segments[segments.length - 1] : null;
 			document.querySelector('.delete-all').addEventListener('click', () => {
-				fetch(location.href, {
+				fetch(basepath, {
 					method: 'DELETE',
 				}).then(() => {
 					location.reload();
@@ -133,88 +136,119 @@
 				return parsed;
 			}
 
+			function showRequest(request) {
+				const requestEl = document.importNode(document.querySelector('#request-tmpl').content, true);
+				requestEl.querySelector('.method-path').textContent = `${request.method} ${request.path}`;
+				requestEl.querySelector('.date').textContent = new Date(request.date).toLocaleString();
+				const headersEl = requestEl.querySelector('.headers');
+				for (const [key, value] of Object.entries(request.headers)) {
+					const headerRowEl = document.importNode(document.querySelector('#request-header-row-tmpl').content, true);
+					headerRowEl.querySelector('.header-name').textContent = key;
+					headerRowEl.querySelector('.header-value').textContent = value;
+					headersEl.appendChild(headerRowEl);
+				}
+				const bodyEl = requestEl.querySelector('.body');
+				bodyEl.textContent = request.body;
+
+				const bodyTypeListEl = requestEl.querySelector('.body-type-list');
+				bodyTypeListEl.addEventListener('click', (event) => {
+					event.preventDefault();
+					if (event.target.classList.contains('body-type')) {
+						for (const el of bodyTypeListEl.querySelectorAll('.body-type.selected')) {
+							el.classList.remove('selected');
+						}
+						event.target.classList.add('selected');
+						const type = event.target.classList[1];
+						switch (type) {
+							case 'raw':
+								bodyEl.textContent = request.body;
+								break;
+							case 'urlencoded':
+								const params = new URLSearchParams(request.body);
+								let text = '';
+								for (const [key, value] of params.entries()) {
+									text += `${key}: ${value}\n`;
+								}
+								bodyEl.textContent = text;
+								break;
+							case 'json':
+								try {
+									bodyEl.textContent = JSON.stringify(JSON.parse(request.body), null, 2);
+								} catch (e) {
+									bodyEl.textContent = '[Failed to parse as JSON]';
+								}
+								break;
+						}
+					}
+				});
+
+				document.querySelector('.request').innerHTML = '';
+				document.querySelector('.request').appendChild(requestEl);
+			}
+
+			function setCurrentlyDisplayingRrequest(request, updateHistory = true) {
+				for (const el of document.querySelectorAll('.compact.selected')) {
+					el.classList.remove('selected');
+				}
+				document.querySelector('.request').innerHTML = '';
+				if (request) {
+					document.querySelector(`.compact[data-id="${request.id}"]`).classList.add('selected');
+					showRequest(request);
+				}
+				if (updateHistory) {
+					if (request) {
+						history.pushState(null, null, `${basepath}/${request.id}`);
+					} else {
+						history.pushState(null, null, `${basepath}`);
+					}
+				}
+			}
+
 			const requestList = document.querySelector('.request-list');
-			fetch(location.href, {
+			fetch(basepath, {
 				headers: {
 					Accept: 'application/json',
 				},
 			})
-				.then((r) => {
-					return r.json();
-				})
+				.then((r) => r.json())
 				.then((res) => {
 					console.log(res);
+					window.requests = Object.fromEntries(res.map((r) => [r.id, r]));
 					for (const request of res) {
 						const compactRequestEl = document.importNode(document.querySelector('#request-compact-tmpl').content, true);
+						compactRequestEl.querySelector('.compact').dataset.id = request.id;
 						compactRequestEl.querySelector('.method-path').textContent = `${request.method} ${request.path}`;
 						compactRequestEl.querySelector('.date').textContent = new Date(request.date).toLocaleString();
 
 						compactRequestEl.querySelector('.compact').addEventListener('click', (event) => {
-							for (const el of document.querySelectorAll('.compact.selected')) {
-								el.classList.remove('selected');
-							}
-							event.target.closest('.compact').classList.add('selected');
-
-							const requestEl = document.importNode(document.querySelector('#request-tmpl').content, true);
-							requestEl.querySelector('.method-path').textContent = `${request.method} ${request.path}`;
-							requestEl.querySelector('.date').textContent = new Date(request.date).toLocaleString();
-							const headersEl = requestEl.querySelector('.headers');
-							for (const [key, value] of Object.entries(request.headers)) {
-								const headerRowEl = document.importNode(document.querySelector('#request-header-row-tmpl').content, true);
-								headerRowEl.querySelector('.header-name').textContent = key;
-								headerRowEl.querySelector('.header-value').textContent = value;
-								headersEl.appendChild(headerRowEl);
-							}
-							const bodyEl = requestEl.querySelector('.body');
-							bodyEl.textContent = request.body;
-
-							const bodyTypeListEl = requestEl.querySelector('.body-type-list');
-							bodyTypeListEl.addEventListener('click', (event) => {
-								event.preventDefault();
-								if (event.target.classList.contains('body-type')) {
-									for (const el of bodyTypeListEl.querySelectorAll('.body-type.selected')) {
-										el.classList.remove('selected');
-									}
-									event.target.classList.add('selected');
-									const type = event.target.classList[1];
-									switch (type) {
-										case 'raw':
-											bodyEl.textContent = request.body;
-											break;
-										case 'urlencoded':
-											const params = new URLSearchParams(request.body);
-											let text = '';
-											for (const [key, value] of params.entries()) {
-												text += `${key}: ${value}\n`;
-											}
-											bodyEl.textContent = text;
-											break;
-										case 'json':
-											try {
-												bodyEl.textContent = JSON.stringify(JSON.parse(request.body), null, 2);
-											} catch (e) {
-												bodyEl.textContent = '[Failed to parse as JSON]';
-											}
-											break;
-									}
-								}
-							});
-
-							document.querySelector('.request').innerHTML = '';
-							document.querySelector('.request').appendChild(requestEl);
+							setCurrentlyDisplayingRrequest(request);
 						});
 
 						compactRequestEl.querySelector('.delete').addEventListener('click', (event) => {
 							event.stopPropagation();
-							fetch(`${location.href}/${request.id}`, {
+							fetch(`${basepath}/${request.id}`, {
 								method: 'DELETE',
 							}).then((r) => {
 								event.target.closest('.compact').remove();
 							});
+							setCurrentlyDisplayingRrequest(null);
 						});
+
 						requestList.appendChild(compactRequestEl);
 					}
+				})
+				.then(() => {
+					if (targetId) {
+						setCurrentlyDisplayingRrequest(window.requests[targetId], false);
+					}
 				});
+
+			window.addEventListener('popstate', () => {
+				const segments = new URL(location.href).pathname.split('/');
+				const id = segments.length > 2 ? segments[segments.length - 1] : null;
+				console.log('popstate', id);
+				setCurrentlyDisplayingRrequest(window.requests[id], false);
+			});
 		</script>
 		<style>
 			body {

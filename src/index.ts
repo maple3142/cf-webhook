@@ -183,9 +183,9 @@ export default {
 				return auth;
 			}
 			const id = pathname.slice(env.LOGS_PREFIX.length).slice(1);
-			if (pathname === env.LOGS_PREFIX && method === 'GET') {
-				const logs = await logger.getLogs();
+			if (method === 'GET') {
 				if (accept === 'application/json') {
+					const logs = await logger.getLogs();
 					return new Response(JSON.stringify(logs), {
 						headers: {
 							'content-type': 'application/json',
