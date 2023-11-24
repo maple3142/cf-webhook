@@ -77,6 +77,11 @@
 					<tbody class="headers-body"></tbody>
 				</table>
 				<h3>Body</h3>
+				<div class="body-type-list">
+					<a href="#" class="body-type raw selected">Raw</a>
+					<a href="#" class="body-type urlencoded">URL Encoded</a>
+					<a href="#" class="body-type json">JSON</a>
+				</div>
 				<pre class="body"></pre>
 			</div>
 		</template>
@@ -107,6 +112,26 @@
 					location.reload();
 				});
 			});
+
+			function parseMultipart(body) {
+				const boundary = body.split('\n')[0].split('=')[1];
+				const parts = body.split(`--${boundary}`).slice(1, -1);
+				const parsed = [];
+				for (const part of parts) {
+					const headers = {};
+					const body = part.split('\n\n')[1];
+					const headerLines = part.split('\n\n')[0].split('\n').slice(1);
+					for (const headerLine of headerLines) {
+						const [key, value] = headerLine.split(': ');
+						headers[key] = value;
+					}
+					parsed.push({
+						headers,
+						body,
+					});
+				}
+				return parsed;
+			}
 
 			const requestList = document.querySelector('.request-list');
 			fetch(location.href, {
@@ -140,10 +165,45 @@
 								headerRowEl.querySelector('.header-value').textContent = value;
 								headersEl.appendChild(headerRowEl);
 							}
-							requestEl.querySelector('.body').textContent = request.body;
+							const bodyEl = requestEl.querySelector('.body');
+							bodyEl.textContent = request.body;
+
+							const bodyTypeListEl = requestEl.querySelector('.body-type-list');
+							bodyTypeListEl.addEventListener('click', (event) => {
+								event.preventDefault();
+								if (event.target.classList.contains('body-type')) {
+									for (const el of bodyTypeListEl.querySelectorAll('.body-type.selected')) {
+										el.classList.remove('selected');
+									}
+									event.target.classList.add('selected');
+									const type = event.target.classList[1];
+									switch (type) {
+										case 'raw':
+											bodyEl.textContent = request.body;
+											break;
+										case 'urlencoded':
+											const params = new URLSearchParams(request.body);
+											let text = '';
+											for (const [key, value] of params.entries()) {
+												text += `${key}: ${value}\n`;
+											}
+											bodyEl.textContent = text;
+											break;
+										case 'json':
+											try {
+												bodyEl.textContent = JSON.stringify(JSON.parse(request.body), null, 2);
+											} catch (e) {
+												bodyEl.textContent = '[Failed to parse as JSON]';
+											}
+											break;
+									}
+								}
+							});
+
 							document.querySelector('.request').innerHTML = '';
 							document.querySelector('.request').appendChild(requestEl);
 						});
+
 						compactRequestEl.querySelector('.delete').addEventListener('click', (event) => {
 							event.stopPropagation();
 							fetch(`${location.href}/${request.id}`, {
@@ -215,6 +275,12 @@
 				font-size: 0.8rem;
 				display: block;
 			}
+			.body-type {
+				text-decoration: none;
+			}
+			.body-type.selected {
+				text-decoration: underline;
+			}
 			@media (prefers-color-scheme: dark) {
 				body {
 					background-color: #222;
@@ -225,6 +291,9 @@
 				}
 				.request-list .compact:not(.selected):hover {
 					background-color: #362929;
+				}
+				a {
+					color: #bcbcff;
 				}
 			}
 		</style>
