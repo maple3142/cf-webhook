@@ -55,15 +55,21 @@
 		</noscript>
 		<template id="header-row-teml">
 			<div class="header-row">
-				<label for="header-name">Header Name</label>
-				<input type="text" name="header-name" list="common-headers" />
-				<label for="header-value">Header Value</label>
-				<input type="text" name="header-value" list="common-headers-values" />
-				<button type="button" class="remove-header">Remove</button>
+				<div class="edit-group">
+					<label for="header-name">Header Name</label>
+					<input type="text" name="header-name" list="common-headers" />
+				</div>
+				<div class="edit-group">
+					<label for="header-value">Header Value</label>
+					<input type="text" name="header-value" list="common-headers-values" />
+				</div>
+				<div class="edit-group">
+					<button type="button" class="remove-header">Remove</button>
+				</div>
 			</div>
 		</template>
-		<h1 id="title"></h1>
-		<main>
+		<main class="container">
+			<h1 id="title"></h1>
 			<form id="edit-form">
 				<div class="headers"></div>
 				<button type="button" class="add-header">Add Header</button>
@@ -204,9 +210,30 @@
 				});
 		</script>
 		<style>
+			.container {
+				max-width: 800px;
+				margin: 0 auto;
+			}
 			.editor-container {
 				margin-top: 1rem;
 				margin-bottom: 1rem;
+			}
+			.header-row {
+				display: flex;
+				margin-bottom: 0.5rem;
+			}
+			.header-row .edit-group {
+				margin-right: 0.5rem;
+			}
+			.header-row .edit-group:last-of-type {
+				margin-left: auto;
+				margin-right: 0;
+			}
+			@media (prefers-color-scheme: dark) {
+				body {
+					background-color: #222;
+					color: #fff;
+				}
 			}
 		</style>
 	</body>

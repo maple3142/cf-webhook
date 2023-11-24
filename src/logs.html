@@ -170,6 +170,7 @@
 				flex: 1;
 				display: flex;
 				flex-direction: column;
+				height: 100vh;
 			}
 			.actions {
 				padding: 1rem;
@@ -213,6 +214,18 @@
 			.date {
 				font-size: 0.8rem;
 				display: block;
+			}
+			@media (prefers-color-scheme: dark) {
+				body {
+					background-color: #222;
+					color: #fff;
+				}
+				.request-list .compact.selected {
+					background-color: #472e55;
+				}
+				.request-list .compact:not(.selected):hover {
+					background-color: #362929;
+				}
 			}
 		</style>
 	</body>
