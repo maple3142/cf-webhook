@@ -8,8 +8,8 @@ compatibility_date = "2023-11-21"
 [vars]
 EDIT_PREFIX = "/edit"
 LOGS_PREFIX = "/logs"
-FILE_RETENTION_SECONDS = 86400
-REQUEST_LOG_RETENTION_SECONDS = 86400
+FILE_RETENTION_SECONDS = 604800
+REQUEST_LOG_RETENTION_SECONDS = 604800
 REQUEST_LOG_MAX_BODY = 1024
 
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.

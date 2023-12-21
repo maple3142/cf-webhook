@@ -89,6 +89,7 @@ interface RequestLog {
 	id: string;
 	method: string;
 	path: string;
+	search: string;
 	headers: Record<string, string>;
 	body?: string;
 	date: Date;
@@ -98,12 +99,13 @@ class RequestLogger {
 	constructor(private env: Env) {}
 	async log(request: Request): Promise<void> {
 		const { method, headers } = request;
-		const { pathname } = new URL(request.url);
+		const { pathname, search } = new URL(request.url);
 		const id = crypto.randomUUID();
 		const log: RequestLog = {
 			id,
 			method,
 			path: pathname,
+			search,
 			headers: Object.fromEntries(headers),
 			date: new Date(),
 			body: method === 'GET' || method === 'HEAD' ? undefined : await request.text(),

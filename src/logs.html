@@ -138,7 +138,7 @@
 
 			function showRequest(request) {
 				const requestEl = document.importNode(document.querySelector('#request-tmpl').content, true);
-				requestEl.querySelector('.method-path').textContent = `${request.method} ${request.path}`;
+				requestEl.querySelector('.method-path').textContent = `${request.method} ${request.path}${request.search}`;
 				requestEl.querySelector('.date').textContent = new Date(request.date).toLocaleString();
 				const headersEl = requestEl.querySelector('.headers');
 				for (const [key, value] of Object.entries(request.headers)) {
