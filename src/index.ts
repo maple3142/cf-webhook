@@ -26,10 +26,14 @@ function doAuth(env: Env, request: Request) {
 			},
 		});
 	}
-	const [username, password] = atob(auth.slice('Basic '.length)).split(':');
-	const good = username === env.ADMIN_USERNAME && password === env.ADMIN_PASSWORD;
-	if (good) {
-		return;
+	try {
+		const [username, password] = atob(auth.slice('Basic '.length)).split(':');
+		const good = username === env.ADMIN_USERNAME && password === env.ADMIN_PASSWORD;
+		if (good) {
+			return;
+		}
+	} catch {
+		// if any error happens, just return unauthorized
 	}
 	return new Response('Unauthorized', {
 		status: 401,
