@@ -204,6 +204,14 @@
 				}
 			}
 
+			function displayRequestByIdAndUpdateHistory(id) {
+				if (Object.prototype.hasOwnProperty.call(window.requests, id)) {
+					setCurrentlyDisplayingRrequest(window.requests[id], false);
+				} else {
+					setCurrentlyDisplayingRrequest(null, true);
+				}
+			}
+
 			const requestList = document.querySelector('.request-list');
 			fetch(basepath, {
 				headers: {
@@ -238,16 +246,14 @@
 					}
 				})
 				.then(() => {
-					if (targetId) {
-						setCurrentlyDisplayingRrequest(window.requests[targetId], false);
-					}
+					displayRequestByIdAndUpdateHistory(targetId);
 				});
 
 			window.addEventListener('popstate', () => {
 				const segments = new URL(location.href).pathname.split('/');
 				const id = segments.length > 2 ? segments[segments.length - 1] : null;
 				console.log('popstate', id);
-				setCurrentlyDisplayingRrequest(window.requests[id], false);
+				displayRequestByIdAndUpdateHistory(id);
 			});
 		</script>
 		<style>
