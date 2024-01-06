@@ -67,7 +67,7 @@
 				<code class="method-path"></code>
 				<code class="date"></code>
 				<h3>Headers</h3>
-				<table class="headers">
+				<table class="kv headers">
 					<thead>
 						<tr>
 							<th>Header</th>
@@ -75,6 +75,16 @@
 						</tr>
 					</thead>
 					<tbody class="headers-body"></tbody>
+				</table>
+				<h3>Query String</h3>
+				<table class="kv query-string">
+					<thead>
+						<tr>
+							<th>Key</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+					<tbody class="query-string-body"></tbody>
 				</table>
 				<h3>Body</h3>
 				<div class="body-type-list">
@@ -140,6 +150,8 @@
 				const requestEl = document.importNode(document.querySelector('#request-tmpl').content, true);
 				requestEl.querySelector('.method-path').textContent = `${request.method} ${request.path}${request.search}`;
 				requestEl.querySelector('.date').textContent = new Date(request.date).toLocaleString();
+
+				// header
 				const headersEl = requestEl.querySelector('.headers');
 				for (const [key, value] of Object.entries(request.headers)) {
 					const headerRowEl = document.importNode(document.querySelector('#request-header-row-tmpl').content, true);
@@ -147,6 +159,17 @@
 					headerRowEl.querySelector('.header-value').textContent = value;
 					headersEl.appendChild(headerRowEl);
 				}
+
+				// query string
+				const queryStringEl = requestEl.querySelector('.query-string');
+				for (const [key, value] of new URLSearchParams(request.search).entries()) {
+					const headerRowEl = document.importNode(document.querySelector('#request-header-row-tmpl').content, true);
+					headerRowEl.querySelector('.header-name').textContent = key;
+					headerRowEl.querySelector('.header-value').textContent = value;
+					queryStringEl.appendChild(headerRowEl);
+				}
+
+				// body
 				const bodyEl = requestEl.querySelector('.body');
 				bodyEl.textContent = request.body;
 
@@ -300,6 +323,9 @@
 				justify-content: space-between;
 				flex-direction: row;
 			}
+			.request-list .compact > div {
+				max-width: 18vw;
+			}
 			.request-list .compact.selected {
 				background-color: #bbb;
 			}
@@ -321,6 +347,18 @@
 			.body-type.selected {
 				text-decoration: underline;
 			}
+			table.kv {
+				border-collapse: collapse;
+			}
+			table.kv th,
+			table.kv td {
+				border: 1px solid #ccc;
+				padding: 0.3rem;
+				margin: 0;
+			}
+			table.kv th {
+				text-align: left;
+			}
 			@media (prefers-color-scheme: dark) {
 				body {
 					background-color: #222;
@@ -334,6 +372,9 @@
 				}
 				a {
 					color: #bcbcff;
+				}
+				table.kv th {
+					background-color: #111;
 				}
 			}
 		</style>
