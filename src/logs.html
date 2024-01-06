@@ -248,7 +248,7 @@
 					for (const request of res) {
 						const compactRequestEl = document.importNode(document.querySelector('#request-compact-tmpl').content, true);
 						compactRequestEl.querySelector('.compact').dataset.id = request.id;
-						compactRequestEl.querySelector('.method-path').textContent = `${request.method} ${request.path}`;
+						compactRequestEl.querySelector('.method-path').textContent = `${request.method} ${request.path}${request.search}`;
 						compactRequestEl.querySelector('.date').textContent = new Date(request.date).toLocaleString();
 
 						compactRequestEl.querySelector('.compact').addEventListener('click', (event) => {
