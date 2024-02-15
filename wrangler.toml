@@ -8,9 +8,9 @@ compatibility_date = "2023-11-21"
 [vars]
 EDIT_PREFIX = "/edit"
 LOGS_PREFIX = "/logs"
-FILE_RETENTION_SECONDS = 604800
-REQUEST_LOG_RETENTION_SECONDS = 604800
-REQUEST_LOG_MAX_BODY = 1024
+FILE_RETENTION_SECONDS = 31536000       # 365 days
+REQUEST_LOG_RETENTION_SECONDS = 2592000 # 30 days
+REQUEST_LOG_MAX_BODY = 10240            # 10KB
 
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
 # Docs: https://developers.cloudflare.com/workers/runtime-apis/kv

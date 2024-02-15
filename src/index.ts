@@ -57,7 +57,7 @@ function normalizePath(path: string): string {
 
 class FileSystem {
 	constructor(private env: Env) {}
-	async createFile(path: string, content: string, headers: Record<string, string> = {}): void {
+	async createFile(path: string, content: string, headers: Record<string, string> = {}) {
 		path = normalizePath(path);
 		await this.env.files.put(path, JSON.stringify({ content, headers }), {
 			expirationTtl: this.env.FILE_RETENTION_SECONDS,
@@ -71,7 +71,7 @@ class FileSystem {
 		}
 		return JSON.parse(file);
 	}
-	async deleteFile(path: string): Promise<void> {
+	async deleteFile(path: string) {
 		path = normalizePath(path);
 		await this.env.files.delete(path);
 	}
@@ -83,7 +83,7 @@ class FileSystem {
 		const fileKeys = (await this.env.files.list()).keys;
 		return fileKeys.map((k) => k.name);
 	}
-	async deleteFiles(): Promise<void> {
+	async deleteFiles() {
 		const fileKeys = (await this.env.files.list()).keys;
 		await Promise.all(fileKeys.map((k) => this.env.files.delete(k.name)));
 	}
