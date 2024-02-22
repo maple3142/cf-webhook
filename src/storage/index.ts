@@ -1,10 +1,10 @@
 import { Env } from '../';
-import { KVFileSystem } from './kv';
-import { D1FileSystem } from './d1';
+import { KVFileSystem, KVRequestLogger } from './kv';
+import { D1FileSystem, D1RequestLogger } from './d1';
 
 export interface VirtualFile {
 	content: string;
-	headers?: Record<string, string>;
+	headers: Record<string, string>;
 }
 
 export interface FileSystem {
@@ -28,6 +28,32 @@ export function createFileSystem(backingStorageType: 'kv' | 'd1', env: Env): Fil
 		return new KVFileSystem(env);
 	} else if (backingStorageType === 'd1') {
 		return new D1FileSystem(env);
+	}
+	throw new Error(`Invalid backing storage type: ${backingStorageType}`);
+}
+
+export interface RequestLog {
+	id: string;
+	method: string;
+	path: string;
+	search: string;
+	headers: Record<string, string>;
+	body: string | null;
+	date: Date;
+}
+
+export interface RequestLogger {
+	log(request: Request): Promise<void>;
+	deleteLog(id: string): Promise<void>;
+	deleteLogs(): Promise<void>;
+	getLogs(): Promise<RequestLog[]>;
+}
+
+export function createRequestLogger(backingStorageType: 'kv' | 'd1', env: Env): RequestLogger {
+	if (backingStorageType === 'kv') {
+		return new KVRequestLogger(env);
+	} else if (backingStorageType === 'd1') {
+		return new D1RequestLogger(env);
 	}
 	throw new Error(`Invalid backing storage type: ${backingStorageType}`);
 }

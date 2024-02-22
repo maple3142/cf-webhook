@@ -1,5 +1,5 @@
 import { Env } from '../';
-import { VirtualFile, FileSystem, normalizePath } from './';
+import { VirtualFile, FileSystem, normalizePath, RequestLog, RequestLogger } from './';
 
 export class KVFileSystem implements FileSystem {
 	constructor(private env: Env) {}
@@ -32,5 +32,43 @@ export class KVFileSystem implements FileSystem {
 	async deleteFiles() {
 		const fileKeys = (await this.env.files.list()).keys;
 		await Promise.all(fileKeys.map((k) => this.env.files.delete(k.name)));
+	}
+}
+
+export class KVRequestLogger implements RequestLogger {
+	constructor(private env: Env) {}
+	async log(request: Request): Promise<void> {
+		const { method, headers } = request;
+		const { pathname, search } = new URL(request.url);
+		const id = crypto.randomUUID();
+		const log: RequestLog = {
+			id,
+			method,
+			path: pathname,
+			search,
+			headers: Object.fromEntries(headers),
+			date: new Date(),
+			body: method === 'GET' || method === 'HEAD' ? null : await request.text(),
+		};
+		return this.env.requests.put(id, KVRequestLogger.logToStr(log), { expirationTtl: this.env.REQUEST_LOG_RETENTION_SECONDS });
+	}
+	async deleteLog(id: string): Promise<void> {
+		return this.env.requests.delete(id);
+	}
+	async deleteLogs(): Promise<void> {
+		const logKeys = (await this.env.requests.list()).keys;
+		await Promise.all(logKeys.map((k) => this.env.requests.delete(k.name)));
+	}
+	async getLogs(): Promise<RequestLog[]> {
+		const logKeys = (await this.env.requests.list()).keys;
+		const logs = (await Promise.all(logKeys.map((k) => this.env.requests.get(k.name)))).filter(Boolean) as string[];
+		return logs.map((l) => KVRequestLogger.logFromStr(l)).sort((a, b) => (a.date > b.date ? -1 : 1));
+	}
+	static logToStr(log: RequestLog): string {
+		return JSON.stringify(log);
+	}
+	static logFromStr(logStr: string): RequestLog {
+		const ret = JSON.parse(logStr, (key: string, value: any) => (key === 'date' ? new Date(value) : value));
+		return ret;
 	}
 }

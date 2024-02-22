@@ -1,7 +1,7 @@
 import EDIT_HTML from './edit.html';
 import LOGS_HTML from './logs.html';
 import FILES_HTML from './files.html';
-import { createFileSystem, VirtualFile } from './storage';
+import { createFileSystem, VirtualFile, createRequestLogger } from './storage';
 
 export interface Env {
 	// generic configs
@@ -49,58 +49,10 @@ function doAuth(env: Env, request: Request) {
 	});
 }
 
-interface RequestLog {
-	id: string;
-	method: string;
-	path: string;
-	search: string;
-	headers: Record<string, string>;
-	body?: string;
-	date: Date;
-}
-
-class RequestLogger {
-	constructor(private env: Env) {}
-	async log(request: Request): Promise<void> {
-		const { method, headers } = request;
-		const { pathname, search } = new URL(request.url);
-		const id = crypto.randomUUID();
-		const log: RequestLog = {
-			id,
-			method,
-			path: pathname,
-			search,
-			headers: Object.fromEntries(headers),
-			date: new Date(),
-			body: method === 'GET' || method === 'HEAD' ? undefined : await request.text(),
-		};
-		return this.env.requests.put(id, RequestLogger.logToStr(log), { expirationTtl: this.env.REQUEST_LOG_RETENTION_SECONDS });
-	}
-	async deleteLog(id: string): Promise<void> {
-		return this.env.requests.delete(id);
-	}
-	async deleteLogs(): Promise<void> {
-		const logKeys = (await this.env.requests.list()).keys;
-		await Promise.all(logKeys.map((k) => this.env.requests.delete(k.name)));
-	}
-	async getLogs(): Promise<RequestLog[]> {
-		const logKeys = (await this.env.requests.list()).keys;
-		const logs = (await Promise.all(logKeys.map((k) => this.env.requests.get(k.name)))).filter(Boolean) as string[];
-		return logs.map((l) => RequestLogger.logFromStr(l)).sort((a, b) => (a.date > b.date ? -1 : 1));
-	}
-	static logToStr(log: RequestLog): string {
-		return JSON.stringify(log);
-	}
-	static logFromStr(logStr: string): RequestLog {
-		const ret = JSON.parse(logStr, (key: string, value: any) => (key === 'date' ? new Date(value) : value));
-		return ret;
-	}
-}
-
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const fs = createFileSystem('d1', env);
-		const logger = new RequestLogger(env);
+		const logger = createRequestLogger('d1', env);
 
 		const { method, headers } = request;
 		const accept = headers.get('accept') || '';
