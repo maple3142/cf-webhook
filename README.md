@@ -18,5 +18,6 @@ A [webhook.site](https://webhook.site/)-like service running on Cloudflare Worke
 2. `wrangler2 kv:namespace create files` and `wrangler2 kv:namespace create requests` to create necessary KV namespaces
 3. Edit `wrangler.toml` and update `namespace_id` in `kv_namespaces` section to the id of the created KV namespace. (Ensure the `id` matches the correct `binding`)
 4. Comment out or remove `d1_databases` section in `wrangler.toml`.
-5. `wrangler publish`
-6. Visit the published URL and you should see the web interface.
+5. Edit `BACKING_STORAGE` in `vars` section to `kv`.
+6. `wrangler publish`
+7. Visit the published URL and you should see the web interface.
