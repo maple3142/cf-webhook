@@ -1,0 +1,10 @@
+version: '3'
+services:
+  web:
+    image: cf-webhook
+    build: .
+    environment:
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+    ports:
+      - "8787:8787"

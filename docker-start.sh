@@ -1,0 +1,6 @@
+#!/bin/sh
+ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+PORT=${PORT:-3000}
+printf "ADMIN_USERNAME=$ADMIN_USERNAME\nADMIN_PASSWORD=$ADMIN_PASSWORD\n" > .dev.vars
+exec yarn dev --ip 0.0.0.0 --port "$PORT"
