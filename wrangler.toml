@@ -22,6 +22,11 @@ id = "444c8e0d51904897893edac8eaaa1dda"
 binding = "requests"
 id = "430bec9bb167467aa4863869491827b6"
 
+[[d1_databases]]
+binding = "db"
+database_name = "cf-webhook"
+database_id = "11942069-c593-44fc-8490-6657a6bf5ec2"
+
 # Bind an R2 Bucket. Use R2 to store arbitrarily large blobs of data, such as files.
 # Docs: https://developers.cloudflare.com/r2/api/workers/workers-api-usage/
 # [[r2_buckets]]
