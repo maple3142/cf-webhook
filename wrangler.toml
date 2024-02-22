@@ -11,6 +11,7 @@ LOGS_PREFIX = "/logs"
 FILE_RETENTION_SECONDS = 31536000       # 365 days
 REQUEST_LOG_RETENTION_SECONDS = 2592000 # 30 days
 REQUEST_LOG_MAX_BODY = 10240            # 10KB
+BACKING_STORAGE = "d1"                  # "d1" (Durable Objects, strong consistency) or "kv" (KV Namespace, eventually consistency)
 
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
 # Docs: https://developers.cloudflare.com/workers/runtime-apis/kv

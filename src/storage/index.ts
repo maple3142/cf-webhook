@@ -23,13 +23,13 @@ export function normalizePath(path: string): string {
 	return new URL(path, 'https://example.com').pathname;
 }
 
-export function createFileSystem(backingStorageType: 'kv' | 'd1', env: Env): FileSystem {
-	if (backingStorageType === 'kv') {
+export function createFileSystem(env: Env): FileSystem {
+	if (env.BACKING_STORAGE === 'kv') {
 		return new KVFileSystem(env);
-	} else if (backingStorageType === 'd1') {
+	} else if (env.BACKING_STORAGE === 'd1') {
 		return new D1FileSystem(env);
 	}
-	throw new Error(`Invalid backing storage type: ${backingStorageType}`);
+	throw new Error(`Invalid backing storage type: ${env.BACKING_STORAGE}`);
 }
 
 export interface RequestLog {
@@ -49,11 +49,11 @@ export interface RequestLogger {
 	getLogs(): Promise<RequestLog[]>;
 }
 
-export function createRequestLogger(backingStorageType: 'kv' | 'd1', env: Env): RequestLogger {
-	if (backingStorageType === 'kv') {
+export function createRequestLogger(env: Env): RequestLogger {
+	if (env.BACKING_STORAGE === 'kv') {
 		return new KVRequestLogger(env);
-	} else if (backingStorageType === 'd1') {
+	} else if (env.BACKING_STORAGE === 'd1') {
 		return new D1RequestLogger(env);
 	}
-	throw new Error(`Invalid backing storage type: ${backingStorageType}`);
+	throw new Error(`Invalid backing storage type: ${env.BACKING_STORAGE}`);
 }

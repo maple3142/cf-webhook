@@ -10,6 +10,7 @@ export interface Env {
 	EDIT_PREFIX: string;
 	LOGS_PREFIX: string;
 	REQUEST_LOG_MAX_BODY: number;
+	BACKING_STORAGE: 'kv' | 'd1';
 
 	// kv
 	files: KVNamespace;
@@ -51,8 +52,8 @@ function doAuth(env: Env, request: Request) {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		const fs = createFileSystem('d1', env);
-		const logger = createRequestLogger('d1', env);
+		const fs = createFileSystem(env);
+		const logger = createRequestLogger(env);
 
 		const { method, headers } = request;
 		const accept = headers.get('accept') || '';
