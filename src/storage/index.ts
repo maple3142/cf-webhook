@@ -1,6 +1,7 @@
 import { Env } from '../';
 import { KVFileSystem, KVRequestLogger } from './kv';
 import { D1FileSystem, D1RequestLogger } from './d1';
+import { MemoryFileSystem, MemoryRequestLogger } from './memory';
 
 export interface VirtualFile {
 	content: string;
@@ -16,6 +17,14 @@ export interface FileSystem {
 	deleteFiles(): Promise<void>;
 }
 
+const GLOBAL_MEMORY_SINGLETONS: {
+	fs: MemoryFileSystem | null;
+	logger: MemoryRequestLogger | null;
+} = {
+	fs: null,
+	logger: null,
+};
+
 export function normalizePath(path: string): string {
 	if (!path.startsWith('/')) {
 		throw new Error('Path must start with /');
@@ -28,6 +37,11 @@ export function createFileSystem(env: Env): FileSystem {
 		return new KVFileSystem(env);
 	} else if (env.BACKING_STORAGE === 'd1') {
 		return new D1FileSystem(env);
+	} else if (env.BACKING_STORAGE === 'memory') {
+		if (GLOBAL_MEMORY_SINGLETONS.fs === null) {
+			GLOBAL_MEMORY_SINGLETONS.fs = new MemoryFileSystem();
+		}
+		return GLOBAL_MEMORY_SINGLETONS.fs;
 	}
 	throw new Error(`Invalid backing storage type: ${env.BACKING_STORAGE}`);
 }
@@ -54,6 +68,11 @@ export function createRequestLogger(env: Env): RequestLogger {
 		return new KVRequestLogger(env);
 	} else if (env.BACKING_STORAGE === 'd1') {
 		return new D1RequestLogger(env);
+	} else if (env.BACKING_STORAGE === 'memory') {
+		if (GLOBAL_MEMORY_SINGLETONS.logger === null) {
+			GLOBAL_MEMORY_SINGLETONS.logger = new MemoryRequestLogger();
+		}
+		return GLOBAL_MEMORY_SINGLETONS.logger;
 	}
 	throw new Error(`Invalid backing storage type: ${env.BACKING_STORAGE}`);
 }
