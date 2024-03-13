@@ -1,8 +1,7 @@
-FROM node:20
-
+FROM oven/bun:1
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install --production --frozen-lockfile
-COPY . .
-
-ENTRYPOINT [ "./docker-start.sh" ]
+COPY ./src ./src
+COPY wrangler.toml ./
+# currently, only memory is supported on bun
+ENV BACKING_STORAGE=memory
+CMD ["bun", "run", "./src/bun-entry.ts"]

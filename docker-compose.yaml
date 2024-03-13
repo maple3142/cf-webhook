@@ -6,5 +6,7 @@ services:
     environment:
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=admin
+      - BACKING_STORAGE=memory
+    init: true
     ports:
       - "8787:8787"

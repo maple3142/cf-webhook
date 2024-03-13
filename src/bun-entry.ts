@@ -5,6 +5,7 @@ import Bun from 'bun';
 declare global {
 	const process: {
 		env: {
+			PORT: string;
 			ADMIN_USERNAME: string;
 			ADMIN_PASSWORD: string;
 		} & typeof wrangler.vars;
@@ -21,7 +22,7 @@ const fakeenv: Env = {
 };
 
 Bun.serve({
-	port: 8787,
+	port: parseInt(process.env.PORT || '8787'),
 	development: false,
 	fetch(req: Request) {
 		return handler.fetch(req, fakeenv, {} as any);
