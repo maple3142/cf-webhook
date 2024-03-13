@@ -1,6 +1,7 @@
-import EDIT_HTML from './edit.html';
-import LOGS_HTML from './logs.html';
-import FILES_HTML from './files.html';
+// import EDIT_HTML from './edit.html';
+// import LOGS_HTML from './logs.html';
+// import FILES_HTML from './files.html';
+import assets from './assets';
 import { createFileSystem, VirtualFile, createRequestLogger } from './storage';
 
 export interface Env {
@@ -10,16 +11,16 @@ export interface Env {
 	EDIT_PREFIX: string;
 	LOGS_PREFIX: string;
 	REQUEST_LOG_MAX_BODY: number;
-	BACKING_STORAGE: 'kv' | 'd1';
+	BACKING_STORAGE: 'kv' | 'd1' | 'memory';
 
 	// kv
-	files: KVNamespace;
-	requests: KVNamespace;
+	files: KVNamespace | null;
+	requests: KVNamespace | null;
 	FILE_RETENTION_SECONDS: number;
 	REQUEST_LOG_RETENTION_SECONDS: number;
 
 	// d1
-	db: D1Database;
+	db: D1Database | null;
 }
 
 function doAuth(env: Env, request: Request) {
@@ -74,7 +75,7 @@ export default {
 						},
 					});
 				}
-				return new Response(filepath ? EDIT_HTML : FILES_HTML, {
+				return new Response(filepath ? assets.EDIT_HTML : assets.FILES_HTML, {
 					headers: {
 						'content-type': 'text/html',
 						'cache-control': 'no-store',
@@ -112,7 +113,7 @@ export default {
 						},
 					});
 				}
-				return new Response(LOGS_HTML, {
+				return new Response(assets.LOGS_HTML, {
 					headers: {
 						'content-type': 'text/html',
 						'cache-control': 'no-store',
