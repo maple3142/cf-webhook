@@ -1,6 +1,6 @@
 # cf-webhook
 
-A [webhook.site](https://webhook.site/)-like service running on Cloudflare Workers.
+A [webhook.site](https://webhook.site/)-like service running on Cloudflare Workers or self-hosted using Bun.
 
 ## Deployment (using D1 as backing storage)
 
@@ -21,3 +21,11 @@ A [webhook.site](https://webhook.site/)-like service running on Cloudflare Worke
 5. Edit `BACKING_STORAGE` in `vars` section to `kv`.
 6. `wrangler publish`
 7. Visit the published URL and you should see the web interface.
+
+## Deployment (with Bun)
+
+1. `bun run ./src/bun-entry.ts`
+
+## Deployment (with Docker)
+
+1. `docker compose up -d`
