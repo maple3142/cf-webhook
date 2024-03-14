@@ -60,9 +60,9 @@ export default {
 		const accept = headers.get('accept') || '';
 		const { pathname } = new URL(request.url);
 		if (pathname.startsWith(env.EDIT_PREFIX)) {
-			const auth = doAuth(env, request);
-			if (auth) {
-				return auth;
+			const authError = doAuth(env, request);
+			if (authError) {
+				return authError;
 			}
 			const filepath = pathname.slice(env.EDIT_PREFIX.length);
 			if (method === 'GET') {
@@ -98,9 +98,9 @@ export default {
 			}
 		}
 		if (pathname.startsWith(env.LOGS_PREFIX)) {
-			const auth = doAuth(env, request);
-			if (auth) {
-				return auth;
+			const authError = doAuth(env, request);
+			if (authError) {
+				return authError;
 			}
 			const id = pathname.slice(env.LOGS_PREFIX.length).slice(1);
 			if (method === 'GET') {
