@@ -67,8 +67,10 @@
 			<div>
 				<code class="method-path"></code>
 				<code class="date"></code>
-				<h3>Headers</h3>
 				<table class="kv headers">
+					<caption>
+						<h3>Headers</h3>
+					</caption>
 					<thead>
 						<tr>
 							<th>Header</th>
@@ -77,8 +79,10 @@
 					</thead>
 					<tbody class="headers-body"></tbody>
 				</table>
-				<h3>Query String</h3>
 				<table class="kv query-string">
+					<caption>
+						<h3>Query String</h3>
+					</caption>
 					<thead>
 						<tr>
 							<th>Key</th>
@@ -184,10 +188,11 @@
 						event.target.classList.add('selected');
 						const type = event.target.classList[1];
 						switch (type) {
-							case 'raw':
+							case 'raw': {
 								bodyEl.textContent = request.body;
 								break;
-							case 'urlencoded':
+							}
+							case 'urlencoded': {
 								const params = new URLSearchParams(request.body);
 								let text = '';
 								for (const [key, value] of params.entries()) {
@@ -195,13 +200,15 @@
 								}
 								bodyEl.textContent = text;
 								break;
-							case 'json':
+							}
+							case 'json': {
 								try {
 									bodyEl.textContent = JSON.stringify(JSON.parse(request.body), null, 2);
 								} catch (e) {
 									bodyEl.textContent = '[Failed to parse as JSON]';
 								}
 								break;
+							}
 						}
 					}
 				});
@@ -295,7 +302,6 @@
 				height: 100vh;
 			}
 			.actions {
-				padding: 1rem;
 				width: 100%;
 				padding: 0;
 				margin: 0;
@@ -345,6 +351,10 @@
 			}
 			.body-type.selected {
 				text-decoration: underline;
+			}
+			table.kv caption {
+				text-align: left;
+				white-space: nowrap;
 			}
 			table.kv {
 				border-collapse: collapse;

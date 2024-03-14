@@ -65,8 +65,11 @@
 			</tr>
 		</template>
 		<main class="container">
-			<button class="delete-all">Delete All Files</button>
 			<table>
+				<caption>
+					<h3 class="inline">Files</h3>
+					<button class="delete-all">Delete All Files</button>
+				</caption>
 				<thead>
 					<tr>
 						<th>File</th>
@@ -110,8 +113,11 @@
 				display: flex;
 				flex-direction: column;
 			}
-			.container button {
-				height: 50px;
+			.inline {
+				display: inline;
+			}
+			.delete-all {
+				float: right;
 			}
 			tbody tr {
 				height: 50px;
@@ -120,6 +126,9 @@
 			}
 			tbody tr:nth-child(even) {
 				background-color: #f2f2f2;
+			}
+			table caption {
+				text-align: left;
 			}
 			@media (prefers-color-scheme: dark) {
 				body {
