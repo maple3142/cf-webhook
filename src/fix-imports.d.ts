@@ -15,7 +15,3 @@ declare module '*.toml' {
 	};
 	export default content;
 }
-declare module 'bun' {
-	const Bun: any;
-	export default Bun;
-}
