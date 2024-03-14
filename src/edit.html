@@ -70,6 +70,7 @@
 			</div>
 		</template>
 		<main class="container">
+			<a id="back-to-file-list">&lt; Go back to file list</a>
 			<h1 id="title"></h1>
 			<form id="edit-form">
 				<div class="headers"></div>
@@ -107,6 +108,9 @@
 			const url = new URL(location.href);
 			const filepath = '/' + url.pathname.split('/').slice(2).join('/');
 			setTitle('Editing', filepath);
+
+			const prefix = url.pathname.split('/').slice(0, 2).join('/');
+			document.getElementById('back-to-file-list').href = prefix;
 
 			// Initialize the form
 			const editForm = document.getElementById('edit-form');

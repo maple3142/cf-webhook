@@ -68,7 +68,10 @@
 			<table>
 				<caption>
 					<h3 class="inline">Files</h3>
-					<button class="delete-all">Delete All Files</button>
+					<div class="actions">
+						<button class="new-file">New File</button>
+						<button class="delete-all">Delete All Files</button>
+					</div>
 				</caption>
 				<thead>
 					<tr>
@@ -80,6 +83,15 @@
 			</table>
 		</main>
 		<script>
+			document.querySelector('.new-file').addEventListener('click', () => {
+				const file = prompt('File path starting with /');
+				if (!file) return;
+				if (!file.startsWith('/')) {
+					alert('File path must start with /');
+					return;
+				}
+				location.pathname += file;
+			});
 			document.querySelector('.delete-all').addEventListener('click', () => {
 				if (confirm('Are you sure you want to delete all files?')) {
 					fetch(location.href, {
@@ -101,7 +113,7 @@
 						const row = document.importNode(document.querySelector('template').content, true);
 						row.querySelector('.link').textContent = path;
 						row.querySelector('.link').href = path;
-						row.querySelector('.edit-link').href = `/edit${path}`;
+						row.querySelector('.edit-link').href = location.pathname + path;
 						document.querySelector('tbody').appendChild(row);
 					}
 				});
@@ -113,12 +125,6 @@
 				display: flex;
 				flex-direction: column;
 			}
-			.inline {
-				display: inline;
-			}
-			.delete-all {
-				float: right;
-			}
 			tbody tr {
 				height: 50px;
 				font-size: 20px;
@@ -129,6 +135,12 @@
 			}
 			table caption {
 				text-align: left;
+			}
+			table caption .inline {
+				display: inline;
+			}
+			table caption .actions {
+				float: right;
 			}
 			@media (prefers-color-scheme: dark) {
 				body {
