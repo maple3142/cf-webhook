@@ -73,6 +73,16 @@
 			<a id="back-to-file-list">&lt; Go back to file list</a>
 			<h1 id="title"></h1>
 			<form id="edit-form">
+				<div class="status-group">
+					<span>
+						<label for="status">Status</label>
+						<input name="status" pattern="[0-9]+" value="200" list="common-status" />
+					</span>
+					<span>
+						<label for="status-text">Status Text</label>
+						<input type="text" name="status-text" value="OK" list="common-status-text" />
+					</span>
+				</div>
 				<div class="headers"></div>
 				<button type="button" class="add-header">Add Header</button>
 				<div class="editor-container">
@@ -81,6 +91,34 @@
 				<button type="submit">Save</button>
 				<button class="delete">Delete</button>
 
+				<datalist id="common-status">
+					<option value="200"></option>
+					<option value="201"></option>
+					<option value="202"></option>
+					<option value="204"></option>
+					<option value="301"></option>
+					<option value="302"></option>
+					<option value="400"></option>
+					<option value="401"></option>
+					<option value="403"></option>
+					<option value="404"></option>
+					<option value="418"></option>
+					<option value="500"></option>
+				</datalist>
+				<datalist id="common-status-text">
+					<option value="OK"></option>
+					<option value="Created"></option>
+					<option value="Accepted"></option>
+					<option value="No Content"></option>
+					<option value="Moved Permanently"></option>
+					<option value="Found"></option>
+					<option value="Bad Request"></option>
+					<option value="Unauthorized"></option>
+					<option value="Forbidden"></option>
+					<option value="Not Found"></option>
+					<option value="I'm a teapot"></option>
+					<option value="Internal Server Error"></option>
+				</datalist>
 				<datalist id="common-headers">
 					<option value="Content-Type"></option>
 					<option value="Content-Security-Policy"></option>
@@ -144,6 +182,8 @@
 					body: JSON.stringify({
 						content: editor.getValue(),
 						headers,
+						status: parseInt(editForm.querySelector('[name="status"]').value),
+						statusText: editForm.querySelector('[name="status-text"]').value,
 					}),
 				}).then((r) => {
 					if (r.ok) {
@@ -190,6 +230,8 @@
 						setTitle('Creating', filepath);
 						return;
 					}
+					document.querySelector('[name="status"]').value = res.status;
+					document.querySelector('[name="status-text"]').value = res.statusText;
 					editor.setValue(res.content);
 					for (const [name, value] of Object.entries(res.headers)) {
 						const headerRow = headerRowTeml.content.cloneNode(true);
@@ -222,6 +264,10 @@
 			.editor-container {
 				margin-top: 1rem;
 				margin-bottom: 1rem;
+			}
+			.status-group {
+				display: flex;
+				margin-bottom: 0.5rem;
 			}
 			.header-row {
 				display: flex;

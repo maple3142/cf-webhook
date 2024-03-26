@@ -3,9 +3,9 @@ import { VirtualFile, FileSystem, normalizePath, RequestLog, RequestLogger } fro
 
 export class KVFileSystem implements FileSystem {
 	constructor(private env: Env) {}
-	async createFile(path: string, content: string, headers: Record<string, string> = {}) {
+	async createFile(path: string, file: VirtualFile) {
 		path = normalizePath(path);
-		await this.env.files.put(path, JSON.stringify({ content, headers }), {
+		await this.env.files.put(path, JSON.stringify(file), {
 			expirationTtl: this.env.FILE_RETENTION_SECONDS,
 		});
 	}

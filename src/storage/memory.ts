@@ -3,9 +3,9 @@ import { VirtualFile, FileSystem, normalizePath, RequestLog, RequestLogger } fro
 
 export class MemoryFileSystem implements FileSystem {
 	private files: Record<string, VirtualFile> = {};
-	async createFile(path: string, content: string, headers: Record<string, string> = {}) {
+	async createFile(path: string, file: VirtualFile) {
 		path = normalizePath(path);
-		this.files[path] = { content, headers };
+		this.files[path] = file;
 	}
 	async getFile(path: string): Promise<VirtualFile | null> {
 		path = normalizePath(path);

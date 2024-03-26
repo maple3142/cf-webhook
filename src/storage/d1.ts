@@ -3,20 +3,22 @@ import { VirtualFile, FileSystem, normalizePath, RequestLog, RequestLogger } fro
 
 export class D1FileSystem implements FileSystem {
 	constructor(private env: Env) {}
-	async createFile(path: string, content: string, headers: Record<string, string> = {}) {
+	async createFile(path: string, file: VirtualFile) {
 		path = normalizePath(path);
 		await this.env.db
-			.prepare('REPLACE INTO files (path, content, headers) VALUES (?, ?, ?)')
-			.bind(path, content, JSON.stringify(headers))
+			.prepare('REPLACE INTO files (path, status, statusText, content, headers) VALUES (?, ?, ?, ?, ?)')
+			.bind(path, file.status, file.statusText, file.content, JSON.stringify(file.headers))
 			.run();
 	}
 	async getFile(path: string): Promise<VirtualFile | null> {
 		path = normalizePath(path);
-		const file = await this.env.db.prepare('SELECT content, headers FROM files WHERE path = ?').bind(path).first();
+		const file = await this.env.db.prepare('SELECT * FROM files WHERE path = ?').bind(path).first();
 		if (file === null) {
 			return null;
 		}
 		return {
+			status: file.status as number,
+			statusText: file.statusText as string,
 			content: file.content as string,
 			headers: JSON.parse(file.headers as string),
 		};

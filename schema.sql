@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS requests;
 CREATE TABLE
 	files (
 		path TEXT PRIMARY KEY,
+		status INTEGER NOT NULL,
+		statusText TEXT NOT NULL,
 		content TEXT NOT NULL,
 		headers JSON NOT NULL
 	);

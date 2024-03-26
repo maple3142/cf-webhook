@@ -6,10 +6,12 @@ import { MemoryFileSystem, MemoryRequestLogger } from './memory';
 export interface VirtualFile {
 	content: string;
 	headers: Record<string, string>;
+	status: number;
+	statusText: string;
 }
 
 export interface FileSystem {
-	createFile(path: string, content: string, headers: Record<string, string>): Promise<void>;
+	createFile(path: string, file: VirtualFile): Promise<void>;
 	getFile(path: string): Promise<VirtualFile | null>;
 	deleteFile(path: string): Promise<void>;
 	fileExists(path: string): Promise<boolean>;

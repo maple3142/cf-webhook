@@ -86,7 +86,7 @@ export default {
 					return new Response('Bad Request', { status: 400 });
 				}
 				const vf: VirtualFile = await request.json();
-				await fs.createFile(filepath, vf.content, vf.headers);
+				await fs.createFile(filepath, vf);
 				return new Response('OK');
 			} else if (method === 'DELETE') {
 				if (filepath) {
@@ -135,6 +135,6 @@ export default {
 		if (file === null) {
 			return new Response('Not Found', { status: 404 });
 		}
-		return new Response(file.content, { headers: file.headers });
+		return new Response(file.content, { headers: file.headers, status: file.status, statusText: file.statusText });
 	},
 };
