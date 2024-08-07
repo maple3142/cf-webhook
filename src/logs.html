@@ -171,22 +171,34 @@
 
 				// body
 				const bodyEl = requestEl.querySelector('.body');
-				const bodyBuf = Uint8Array.from(request.body, (x) => x.charCodeAt(0));
+				const bodyBuf = Uint8Array.from(request.body, (x) => x.charCodeAt(0)); // note that request.body is already decoded using iso-8859-1 on server side
 				const bodyStrUtf8 = new TextDecoder('utf-8').decode(bodyBuf);
 
 				const bodyTypeListEl = requestEl.querySelector('.body-type-list');
+				const blobUrls = [];
 				bodyTypeListEl.addEventListener('click', async (event) => {
 					event.preventDefault();
+
+					// garbage collection
+					for (const url of blobUrls) {
+						URL.revokeObjectURL(url);
+					}
+					blobUrls.length = 0;
+
 					if (event.target.classList.contains('body-type')) {
+						// handle body type selection
 						for (const el of bodyTypeListEl.querySelectorAll('.body-type.selected')) {
 							el.classList.remove('selected');
 						}
 						event.target.classList.add('selected');
+
+						// handle body display
 						const type = event.target.classList[1];
 						switch (type) {
 							case 'raw': {
 								const blob = new Blob([bodyBuf], { type: 'application/octet-stream' });
 								const url = URL.createObjectURL(blob);
+								blobUrls.push(url);
 								const a = document.createElement('a');
 								a.href = url;
 								a.download = `body-${request.id}.txt`;
@@ -212,15 +224,15 @@
 								try {
 									bodyEl.textContent = JSON.stringify(JSON.parse(bodyStrUtf8), null, 2);
 								} catch (e) {
-									bodyEl.textContent = '[Failed to parse as JSON]';
+									bodyEl.textContent = `[Failed to parse as JSON: ${e}]`;
 								}
 								break;
 							}
 							case 'multipart': {
 								const ct = request.headers['content-type'];
 								if (ct.startsWith('multipart/form-data; boundary=')) {
-									const boundary = ct.split('boundary=')[1];
 									const { parseMultipart } = await import('https://esm.run/@mjackson/multipart-parser');
+									const boundary = ct.split('boundary=')[1];
 									const ul = document.createElement('ul');
 									for await (let part of parseMultipart(bodyBuf, boundary)) {
 										const buf = await readableStreamToBuf(part.body);
@@ -231,6 +243,7 @@
 											ul.appendChild(li);
 										} else {
 											const url = URL.createObjectURL(new Blob([buf], { type: part.mediaType }));
+											blobUrls.push(url);
 											const a = document.createElement('a');
 											a.href = url;
 											a.download = part.filename;
@@ -350,6 +363,7 @@
 				display: flex;
 				flex-direction: column;
 				height: 100vh;
+				min-width: 20vw;
 			}
 			.actions {
 				width: 100%;
@@ -395,6 +409,9 @@
 			.date {
 				font-size: 0.8rem;
 				display: block;
+			}
+			.body-type-list .body-type:not(:last-child) {
+				margin-right: 0.5rem;
 			}
 			.body-type {
 				text-decoration: none;
