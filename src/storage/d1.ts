@@ -1,6 +1,6 @@
 import { Env } from '../';
 import { VirtualFile, FileSystem, normalizePath, RequestLog, RequestLogger } from './';
-import { getRequsetBody } from '../utils';
+import { arrayBufferToString } from '../utils';
 
 export class D1FileSystem implements FileSystem {
 	constructor(private env: Env) {}
@@ -47,18 +47,11 @@ export class D1RequestLogger implements RequestLogger {
 		const { method, headers } = request;
 		const { pathname, search } = new URL(request.url);
 		const id = crypto.randomUUID();
-		const log: RequestLog = {
-			id,
-			method,
-			path: pathname,
-			search,
-			headers: Object.fromEntries(headers),
-			date: new Date(),
-			body: method === 'GET' || method === 'HEAD' ? null : await getRequsetBody(request),
-		};
+		const body = method === 'GET' || method === 'HEAD' ? null : await request.arrayBuffer();
+		const date = new Date();
 		await this.env.db
 			.prepare('REPLACE INTO requests (id, method, path, search, headers, body, date) VALUES (?, ?, ?, ?, ?, ?, ?)')
-			.bind(id, method, pathname, search, JSON.stringify(log.headers), log.body, log.date.toISOString())
+			.bind(id, method, pathname, search, JSON.stringify(Object.fromEntries(headers)), body, date.toISOString())
 			.run();
 	}
 	async deleteLog(id: string): Promise<void> {
@@ -75,7 +68,7 @@ export class D1RequestLogger implements RequestLogger {
 			path: r.path as string,
 			search: r.search as string,
 			headers: JSON.parse(r.headers as string),
-			body: r.body as string,
+			body: arrayBufferToString(new Uint8Array(r.body as number[])),
 			date: new Date(r.date as string),
 		}));
 		return logs.sort((a, b) => (a.date > b.date ? -1 : 1));
