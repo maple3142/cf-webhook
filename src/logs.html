@@ -171,7 +171,7 @@
 
 				// body
 				const bodyEl = requestEl.querySelector('.body');
-				const bodyBuf = Uint8Array.from(request.body, (x) => x.charCodeAt(0)); // note that request.body is already decoded using iso-8859-1 on server side
+				const bodyBuf = Uint8Array.from(request.body || '', (x) => x.charCodeAt(0)); // note that request.body is already decoded using iso-8859-1 on server side
 				const bodyStrUtf8 = new TextDecoder('utf-8').decode(bodyBuf);
 
 				const bodyTypeListEl = requestEl.querySelector('.body-type-list');
