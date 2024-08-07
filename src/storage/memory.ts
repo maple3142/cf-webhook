@@ -1,5 +1,6 @@
 import { Env } from '../';
 import { VirtualFile, FileSystem, normalizePath, RequestLog, RequestLogger } from './';
+import { getRequsetBody } from '../utils';
 
 export class MemoryFileSystem implements FileSystem {
 	private files: Record<string, VirtualFile> = {};
@@ -40,7 +41,7 @@ export class MemoryRequestLogger implements RequestLogger {
 			search,
 			headers: Object.fromEntries(headers),
 			date: new Date(),
-			body: method === 'GET' || method === 'HEAD' ? null : await request.text(),
+			body: method === 'GET' || method === 'HEAD' ? null : await getRequsetBody(request),
 		};
 		this.logs[id] = log;
 	}

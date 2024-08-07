@@ -1,5 +1,6 @@
 import { Env } from '../';
 import { VirtualFile, FileSystem, normalizePath, RequestLog, RequestLogger } from './';
+import { getRequsetBody } from '../utils';
 
 export class D1FileSystem implements FileSystem {
 	constructor(private env: Env) {}
@@ -53,7 +54,7 @@ export class D1RequestLogger implements RequestLogger {
 			search,
 			headers: Object.fromEntries(headers),
 			date: new Date(),
-			body: method === 'GET' || method === 'HEAD' ? null : await request.text(),
+			body: method === 'GET' || method === 'HEAD' ? null : await getRequsetBody(request),
 		};
 		await this.env.db
 			.prepare('REPLACE INTO requests (id, method, path, search, headers, body, date) VALUES (?, ?, ?, ?, ?, ?, ?)')

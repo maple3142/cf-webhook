@@ -1,5 +1,6 @@
 import { Env } from '../';
 import { VirtualFile, FileSystem, normalizePath, RequestLog, RequestLogger } from './';
+import { getRequsetBody } from '../utils';
 
 export class KVFileSystem implements FileSystem {
 	constructor(private env: Env) {}
@@ -48,7 +49,7 @@ export class KVRequestLogger implements RequestLogger {
 			search,
 			headers: Object.fromEntries(headers),
 			date: new Date(),
-			body: method === 'GET' || method === 'HEAD' ? null : await request.text(),
+			body: method === 'GET' || method === 'HEAD' ? null : await getRequsetBody(request),
 		};
 		return this.env.requests.put(id, KVRequestLogger.logToStr(log), { expirationTtl: this.env.REQUEST_LOG_RETENTION_SECONDS });
 	}
