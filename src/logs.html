@@ -97,7 +97,6 @@
 					<a href="#" class="body-type urlencoded">URL Encoded</a>
 					<a href="#" class="body-type json">JSON</a>
 					<a href="#" class="body-type multipart">Multipart</a>
-					<a href="#" class="body-type file">File</a>
 				</div>
 				<pre class="body"></pre>
 			</div>
@@ -186,7 +185,18 @@
 						const type = event.target.classList[1];
 						switch (type) {
 							case 'raw': {
-								bodyEl.textContent = bodyStrUtf8;
+								const blob = new Blob([bodyBuf], { type: 'application/octet-stream' });
+								const url = URL.createObjectURL(blob);
+								const a = document.createElement('a');
+								a.href = url;
+								a.download = `body-${request.id}.txt`;
+								a.textContent = 'Download';
+								bodyEl.innerHTML = '';
+								bodyEl.appendChild(a);
+
+								const inner = document.createElement('div');
+								inner.textContent = bodyStrUtf8;
+								bodyEl.appendChild(inner);
 								break;
 							}
 							case 'urlencoded': {
@@ -204,17 +214,6 @@
 								} catch (e) {
 									bodyEl.textContent = '[Failed to parse as JSON]';
 								}
-								break;
-							}
-							case 'file': {
-								const blob = new Blob([bodyBuf], { type: 'application/octet-stream' });
-								const url = URL.createObjectURL(blob);
-								const a = document.createElement('a');
-								a.href = url;
-								a.download = `body-${request.id}.txt`;
-								a.textContent = 'Download';
-								bodyEl.innerHTML = '';
-								bodyEl.appendChild(a);
 								break;
 							}
 							case 'multipart': {
@@ -252,7 +251,7 @@
 					}
 				});
 				const defaultBodyType = (() => {
-					const ct = request.headers['content-type'];
+					const ct = request.headers['content-type'] || '';
 					if (ct.startsWith('application/x-www-form-urlencoded')) {
 						return 'urlencoded';
 					} else if (ct.startsWith('application/json')) {
