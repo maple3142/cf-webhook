@@ -330,6 +330,7 @@
 								method: 'DELETE',
 							}).then((r) => {
 								event.target.closest('.compact').remove();
+								history.pushState(null, null, basepath);
 							});
 							setCurrentlyDisplayingRrequest(null);
 						});
