@@ -29,3 +29,28 @@ A [webhook.site](https://webhook.site/)-like service running on Cloudflare Worke
 ## Deployment (with Docker)
 
 1. `docker compose up -d`
+
+## Development
+
+### Setup env vars
+
+Create `.dev.vars` file with the following content:
+
+```bash
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin
+```
+
+### Setup Local D1
+
+```bash
+wrangler2 d1 execute cf-webhook --local --file=./schema.sql
+```
+
+## Demo instance
+
+* URL: https://cf-webhook.fly.dev/
+* Logs: https://cf-webhook.fly.dev/logs
+* Edit: https://cf-webhook.fly.dev/edit
+
+Username: `admin`, Password: `admin`
