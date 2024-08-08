@@ -62,6 +62,7 @@ export default {
 		if (pathname.startsWith(env.EDIT_PREFIX)) {
 			const authError = doAuth(env, request);
 			if (authError) {
+				await logger.log(request);
 				return authError;
 			}
 			const filepath = pathname.slice(env.EDIT_PREFIX.length);
@@ -100,6 +101,7 @@ export default {
 		if (pathname.startsWith(env.LOGS_PREFIX)) {
 			const authError = doAuth(env, request);
 			if (authError) {
+				await logger.log(request);
 				return authError;
 			}
 			const id = pathname.slice(env.LOGS_PREFIX.length).slice(1);
