@@ -230,26 +230,28 @@
 							}
 							case 'multipart': {
 								const ct = request.headers['content-type'];
-								if (ct.startsWith('multipart/form-data; boundary=')) {
-									const { parseMultipart } = await import('https://esm.run/@mjackson/multipart-parser');
-									const boundary = ct.split('boundary=')[1];
+								if (ct.startsWith('multipart/form-data')) {
+									const resp = new Response(bodyBuf, {
+										headers: {
+											'Content-Type': ct,
+										},
+									});
+									const fd = await resp.formData();
 									const ul = document.createElement('ul');
-									for await (let part of parseMultipart(bodyBuf, boundary)) {
-										const buf = await readableStreamToBuf(part.body);
-										if (!part.isFile) {
+									for (const [key, value] of fd.entries()) {
+										if (!(value instanceof File)) {
 											const li = document.createElement('li');
-											const value = new TextDecoder('utf-8').decode(buf);
-											li.textContent = `${part.name}: ${value}`;
+											li.textContent = `${key}: ${value}`;
 											ul.appendChild(li);
 										} else {
-											const url = URL.createObjectURL(new Blob([buf], { type: part.mediaType }));
+											const url = URL.createObjectURL(value);
 											blobUrls.push(url);
 											const a = document.createElement('a');
 											a.href = url;
-											a.download = part.filename;
-											a.textContent = `[File ${part.filename}]`;
+											a.download = value.name;
+											a.textContent = `[File ${value.name}]`;
 											const li = document.createElement('li');
-											li.textContent = `${part.name}: `;
+											li.textContent = `${key}: `;
 											li.appendChild(a);
 											ul.appendChild(li);
 										}
