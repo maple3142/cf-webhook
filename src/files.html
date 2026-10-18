@@ -142,6 +142,34 @@
 			table caption .actions {
 				float: right;
 			}
+			@media (max-width: 1200px) {
+				table {
+					width: 100%;
+					table-layout: fixed;
+				}
+				td {
+					overflow-wrap: anywhere;
+				}
+				th:last-child {
+					width: 4rem;
+				}
+				table caption .actions {
+					float: none;
+					display: flex;
+					flex-wrap: wrap;
+					gap: 0.5rem;
+					margin: 0.5rem 0;
+				}
+				button,
+				.edit-link {
+					min-height: 44px;
+					padding: 0.5rem;
+					box-sizing: border-box;
+				}
+				.edit-link {
+					display: inline-block;
+				}
+			}
 			@media (prefers-color-scheme: dark) {
 				body {
 					background-color: #222;

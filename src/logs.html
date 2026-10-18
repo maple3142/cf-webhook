@@ -438,6 +438,60 @@
 			table.kv th {
 				text-align: left;
 			}
+			@media (max-width: 1200px) {
+				.container {
+					flex-direction: column;
+				}
+				.left-column {
+					height: auto;
+				}
+				.request-list {
+					max-height: 35vh;
+					border-right: 0;
+					border-bottom: 1px solid #ccc;
+				}
+				.request-list .compact {
+					gap: 0.5rem;
+				}
+				.request-list .compact > div {
+					min-width: 0;
+					max-width: none;
+				}
+				.request-list .method-path {
+					font-size: 1rem;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+				.request-list .compact button {
+					flex-shrink: 0;
+					align-self: center;
+				}
+				.request {
+					min-width: 0;
+				}
+				.method-path,
+				table.kv td {
+					overflow-wrap: anywhere;
+				}
+				table.kv {
+					width: 100%;
+					table-layout: fixed;
+				}
+				.body {
+					overflow-x: auto;
+				}
+				.body-type-list {
+					display: flex;
+					flex-wrap: wrap;
+				}
+				button,
+				.body-type {
+					min-height: 44px;
+					padding: 0.5rem;
+					box-sizing: border-box;
+				}
+			}
 			@media (prefers-color-scheme: dark) {
 				body {
 					background-color: #222;

@@ -283,6 +283,38 @@
 				margin-left: auto;
 				margin-right: 0;
 			}
+			@media (max-width: 1200px) {
+				#title {
+					overflow-wrap: anywhere;
+				}
+				.status-group,
+				.header-row {
+					flex-direction: column;
+					gap: 0.5rem;
+					padding-bottom: 0.75rem;
+					margin-bottom: 0.75rem;
+					border-bottom: 1px solid #ccc;
+				}
+				.header-row .edit-group,
+				.header-row .edit-group:last-of-type {
+					margin: 0;
+				}
+				label {
+					display: block;
+				}
+				input {
+					width: 100%;
+					box-sizing: border-box;
+				}
+				input,
+				button {
+					min-height: 44px;
+					font-size: 16px;
+				}
+				.CodeMirror {
+					font-size: 16px;
+				}
+			}
 			@media (prefers-color-scheme: dark) {
 				body {
 					background-color: #222;
