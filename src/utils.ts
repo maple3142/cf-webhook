@@ -1,5 +1,5 @@
-export function arrayBufferToString(buf: ArrayBuffer): string {
-	return new TextDecoder('iso-8859-1').decode(buf); // use this for best data preservation
+export function arrayBufferToString(buf: ArrayBuffer | Uint8Array): string {
+	return (buf instanceof Uint8Array ? buf : new Uint8Array(buf)).toBase64();
 }
 export async function getRequsetBody(request: Request): Promise<string> {
 	return arrayBufferToString(await request.arrayBuffer());
