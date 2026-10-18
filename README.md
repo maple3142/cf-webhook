@@ -46,11 +46,3 @@ ADMIN_PASSWORD=admin
 ```bash
 wrangler2 d1 execute cf-webhook --local --file=./schema.sql
 ```
-
-## Demo instance
-
-* URL: https://cf-webhook.fly.dev/
-* Logs: https://cf-webhook.fly.dev/logs
-* Edit: https://cf-webhook.fly.dev/edit
-
-Username: `admin`, Password: `admin`
